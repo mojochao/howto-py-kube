@@ -4,6 +4,7 @@
 #+EXPORT_SELECT_TAGS: export
 #+EXPORT_EXCLUDE_TAGS: noexport
 #+LANGUAGE: en
+#+STARTUP: overview
 
 * Overview
   
