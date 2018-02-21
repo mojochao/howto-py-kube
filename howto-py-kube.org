@@ -190,3 +190,17 @@ EOF
 * Describe demo service deployments
 
 * Manage demo service deployments
+* Clean up
+ 
+ We should clean up after ourselves.
+
+#+BEGIN_SRC sh :tangle scripts/cleanup.sh
+rm -rf app
+rm -rf scripts
+rm -f *.html
+rm -f *.pdf
+rm -f *.tex
+#+END_SRC
+
+ And with that, we're done.  I hope you learned something.  I know I did.
+
