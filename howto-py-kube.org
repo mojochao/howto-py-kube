@@ -7,9 +7,9 @@
 
 * Overview
   
- This document is a guide to running Python apps in a [[https://kubernetes.io/][Kubernetes]] environment.
+ This document is a guide to running [[https://www.python.org/][Python]] apps in a [[https://kubernetes.io/][Kubernetes]] environment.
 
- This guide is intended to demonstrate:
+ This guide is intended to demo:
  - creating a local kubernetes cluster to deploy to
  - creating a demo web service to deploy to cluster
  - building the demo web service image
@@ -19,22 +19,51 @@
  - creating delarative deployment specifications for demo web service
  - managing deployments of the demo web service
 
- Note that this guide demonstrates on macOS, but is still valid for other  
- operating systemes, apart from the macOS tools installation instructions.
+ Note that this guide demos commands on macOS, but is still valid for other 
+ operating systems, apart from the macOS tools installation instructions.
 
 * Usage
 
+ Open up a terminal for the demo.  Everything we do will be done in a shell.
+ I personally use [[http://www.zsh.org/][zsh]] with [[https://github.com/sorin-ionescu/prezto][prezto]] but vanilla bash will perform just as well.
+
+ The first thing to do is clone this repository.
+
+#+NAME: clone_repo
+#+BEGIN_SRC sh
+mkdir -p tmp && cd tmp
+git clone https://github.com/mojochao/howto-py-kube.git
+#+END_SRC
+
+ Next remove the cloned git repository and initialize a new one so we can
+ capture the state of the system we're building at various points in time.
+
+#+NAME: init_repo
+#+BEGIN_SRC sh :tangle scripts/init_demo_repo.sh
+rm -rf .git
+git init
+head -n 5 .gitignore > .gitignore  # don't ignore app directory
+git add .gitignore
+git commit -m 'Initial commit'
+git tag -a new-repo 
+#+END_SRC
+
+ Open this document in your editor of choice.  Mine is [[http://spacemacs.org/][spacemacs]], a community
+ curated configuration of the [[https://www.gnu.org/software/emacs/][Emacs]] editor, with the [[http://spacemacs.org/layers/+emacs/org/README.html][Org layer]] added to my
+ [[https://github.com/mojochao/dotfiles/blob/master/src/.spacemacs][.spacemacs]] config file. 
+
  This document is an example of [[http://howardism.org/Technical/Emacs/literate-devops.html][Literate DevOps]], a term coined by the awesome 
- [[https://www.gnu.org/software/emacs/][Emacs]] hacker Howard Abrams.
+ emacs hacker [[http://www.howardism.org/][Howard Abrams]].
 
- Emacs [[https://orgmode.org][Org]] mode provides the capabilities to use this doc /The Right Way/.  
- After opening this file in emacs, type =C-c C-c= in a source block to execute
- the source.
+ Emacs [[https://orgmode.org][Org mode]] provides capabilities for interactively using this document 
+ /The Right Way (tm)/.  After opening this file in emacs, type =C-c C-c= in a 
+ source block to execute the source.
 
- For those not in the Emacs lifestyle, you will have to open a shell and
- manually enter the commands, or execute extracted scripts.
+ For those not down with [[http://www.howardism.org/Technical/Emacs/tao-of-emacs.html][The Tao of Emacs]] you will have to manually enter the 
+ demonstrated commands.
 
- Org mode provides the ability to extract the source blocks into scripts.
+ [[https://orgmode.org][Org mode]] also provides the ability to extract document source blocks into 
+ scripts.
 
 #+NAME: export_scripts
 #+BEGIN_SRC elisp :results output
@@ -42,19 +71,27 @@
 (org-babel-tangle-file "howto-py-kube.org")
 #+END_SRC
 
- Org mode also provides the ability to export the document in multiple formats
- including html and pdf.
+ Once generated, these scripts can be used to perform the commands demonstrated
+ in this document.
 
-#+NAME: export_docs
+ [[https://orgmode.org][Org mode]] also provides the ability to export documents in multiple formats.
+
+ The most commonly used is HTML.
+
+#+NAME: export_html
 #+BEGIN_SRC elisp
 (org-html-export-to-html "howto-py-kube.org")
+#+END_SRC
+
+ Another commonly used format is PDF.
+
+#+NAME: export_pdf
+#+BEGIN_SRC elisp
 (org-latex-export-to-pdf "howto-py-kube.org")
 #+END_SRC
 
- You can follow along with those documents, or alternatively that found at its 
+ If not viewing in emacs, you can also use the HTML rendered version on its 
  [[https://github.com/mojochao/howto-py-kube][GitHub project]] page. 
-
- So go ahead and fire up Emacs or a terminal.  It's time to build something!
 
 * Create local kubernetes cluster
   
@@ -69,18 +106,12 @@
 which docker || brew cask install docker
 #+END_SRC
 
- After install, Docker.app will be running and you will see the Docker Whale 
+ After install, =Docker.app= will be running and you will see the Docker Whale 
  icon in your Menu Bar.
   
- Check the docker command.
-
-#+NAME: check_docker_command
-#+BEGIN_SRC sh :tangle scripts/create_kubes_macos.sh
-which docker
-#+END_SRC
-
- It is not required to have the Docker.app application running, as minikube
- will run the docker machine itself.  Feel free to quit Docker.app at any time.
+ It is not required to have the =Docker.app= application running, as minikube
+ will run the docker machine itself.  Feel free to quit =Docker.app= at any 
+ time.
 
  The [[https://kubernetes.io/docs/reference/kubectl/overview][kubectl]] command is used to manage the Kubernetes cluster at the lowest
  level.  Ensure it is installed.
@@ -143,7 +174,7 @@ minikube dashboard
 
  Leave the dashboard open so we can easily observe changes to the cluster.
 
- Congratulations!  You're the owner of a new local kubernetes cluster.
+ Congratulations!  You're the owner of a brand new local kubernetes cluster.
 
 * Create the demo service
 
@@ -215,11 +246,8 @@ EOF
 
 #+NAME: clean_repo
 #+BEGIN_SRC sh :tangle scripts/clean_repo.sh
-rm -rf app
-rm -rf scripts
-rm -f *.html
-rm -f *.pdf
-rm -f *.tex
+rm -rf app scripts
+rm -f *.html *.pdf *.tex
 #+END_SRC
 
  And with that, we're done.  I hope you learned something.  I know I did.
