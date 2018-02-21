@@ -10,10 +10,12 @@
  This document is a guide to running Python apps in a [[https://kubernetes.io/][Kubernetes]] environment.
 
  This guide is intended to demonstrate:
- - creation of a local kubernetes cluster to deploy to
- - creation of a demo web service to deploy to cluster
- - manually scaling the deployment of the demo web service
- - manually updating the deployment of the demo web service
+ - creating a local kubernetes cluster to deploy to
+ - creating a demo web service to deploy to cluster
+ - building the demo web service image
+ - deploying the demo web service to cluster
+ - scaling the deployment of the demo web service
+ - updating the deployment of the demo web service
  - creating delarative deployment specifications for demo web service
  - managing deployments of the demo web service
 
@@ -22,7 +24,7 @@
 
  Go ahead and open up a terminal window.  It's time to build something!
 
-* Create a local minikube
+* Create local kubernetes cluster
   
  Note that [[https://brew.sh/][Homebrew]] is used for installing packages on macOS.  Ensure that it's
  installed before proceeding.
@@ -110,9 +112,9 @@ curl -LO https://storage.googleapis.com/minikube/releases/latest/docker-machine-
  Congratulations, you now have the tools installed to work with Kubernetes 
  clusters, both local and remote.
 
-* Start up minikube and explore a bit
+* Start local kubernetes cluster
   
- Start minikube cluster with the hyperkit vm driver on macOS.
+ Start a minikube cluster with the hyperkit vm driver on macOS.
 
 #+NAME: start_minikube_macos
 #+BEGIN_SRC sh 
@@ -201,3 +203,7 @@ EOF
 * Scale the demo service
 
 * Update the demo service
+
+* Describe demo service deployments
+
+* Manage demo service deployments
