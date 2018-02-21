@@ -22,8 +22,6 @@
  Note that this guide demonstrates on macOS, but is still valid for other  
  operating systemes, apart from the macOS tools installation instructions.
 
- Go ahead and open up a terminal window.  It's time to build something!
-
 * Usage
 
  This document is an example of [[http://howardism.org/Technical/Emacs/literate-devops.html][Literate DevOps]], a term coined by the awesome 
@@ -55,6 +53,8 @@
 
  You can follow along with those documents, or alternatively that found at its 
  [[https://github.com/mojochao/howto-py-kube][GitHub project]] page. 
+
+ So go ahead and fire up Emacs or a terminal.  It's time to build something!
 
 * Create local kubernetes cluster
   
