@@ -1,8 +1,10 @@
 *.html
 *.pdf
 *.sh
+*.tex
 *~
 Dockerfile
 app.py
 requirements.txt
 #*
+auto/
