@@ -53,7 +53,7 @@ git tag -a new-repo
  [[https://github.com/mojochao/dotfiles/blob/master/src/.spacemacs][.spacemacs]] config file. 
 
  This document is an example of [[http://howardism.org/Technical/Emacs/literate-devops.html][Literate DevOps]], a term coined by the awesome 
- emacs hacker [[http://www.howardism.org/][Howard Abrams]].
+ emacs hacker [[http://www.howardism.org/][Howard Abrams]]. 
 
  Emacs [[https://orgmode.org][Org mode]] provides capabilities for interactively using this document 
  /The Right Way (tm)/.  After opening this file in emacs, type =C-c C-c= in a 
