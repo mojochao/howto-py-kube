@@ -1,0 +1,8 @@
+*.html
+*.pdf
+*.sh
+*~
+Dockerfile
+app.py
+requirements.txt
+#*
