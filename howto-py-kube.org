@@ -26,14 +26,14 @@
 
 * Create local kubernetes cluster
   
- Note that [[https://brew.sh/][Homebrew]] is used for installing packages on macOS.  Ensure that it's
+ Note that [[https://brew.sh/][Homebrew]] is used for installing packages on macOS.  Ensure it is
  installed before proceeding.
 
  A [[https://www.docker.com/docker][Docker]] environment is used to run images in containers. Ensure it is 
  installed.
 
 #+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
-command -v docker >/dev/null 2>&1 || brew cask install docker
+which docker || brew cask install docker
 #+END_SRC
 
  After install, Docker.app will be running and you will see the Docker Whale 
@@ -52,7 +52,7 @@ docker version
  level.  Ensure it is installed.
 
 #+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
-command -v kubectl >/dev/null 2>&1 || brew install kubectl
+which kubectl || brew install kubectl
 #+END_SRC
 
  Check the kubectl command.
@@ -65,7 +65,7 @@ kubectl version
  high level.  Ensure it is installed.
 
 #+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
-command -v kubernetes-helm >/dev/null 2>&1 || brew install kubernetes-helm
+which helm || brew install kubernetes-helm
 #+END_SRC
 
  Check the helm command.
@@ -78,7 +78,7 @@ helm version
  installed.
 
 #+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
-command -v minikube >/dev/null 2>&1 || brew cask install minikube
+which minikube || brew cask install minikube
 #+END_SRC
 
  Check the minikube command.
