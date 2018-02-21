@@ -148,12 +148,14 @@ from bottle import route, run
 
 @route('/')
 def hello():
-    return f"Hello World from {os.uname()[1]}"
+    return 'Hello World from {host}'.format(host=os.uname()[1])
 
 if __name__ == '__main__':
     run(host='0.0.0.0', port=8080, debug=True)
 EOF
 #+END_SRC
+
+#+RESULTS: create_app_py
 
  We also need a requirements file for the app.
 
@@ -163,6 +165,8 @@ cat <<EOF > requirements.txt
 bottle
 EOF
 #+END_SRC
+
+#+RESULTS: create_requirements_txt
 
  The last thing we need is a Dockerfile.
 
@@ -178,6 +182,8 @@ RUN pip install -r requirements.txt
 ENTRYPOINT ["python3", "app.py"]
 EOF
 #+END_SRC
+
+#+RESULTS: create_dockerfile
 
  Done!  That's all we need to provide the demo web service.
 
