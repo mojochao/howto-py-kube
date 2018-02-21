@@ -48,7 +48,7 @@ docker version
  It is not required to have the Docker.app application running, as minikube
  will run the docker machine itself.  Feel free to quit Docker.app at any time.
 
- The [[https://kubernetes.io/docs/reference/kubectl/overview/kubectl][kubectl]] command is used to manage the Kubernetes cluster at the lowest
+ The [[https://kubernetes.io/docs/reference/kubectl/overview][kubectl]] command is used to manage the Kubernetes cluster at the lowest
  level.  Ensure it is installed.
 
 #+NAME: macos_install_kubectl
@@ -78,8 +78,8 @@ command -v kubernetes-helm >/dev/null 2>&1 || brew install kubernetes-helm
 helm version
 #+END_SRC
 
- The [[https://kubernetes.io/docs/getting-started-guides/minikube/][minikube]] command is what is used to provide the local Kubernetes cluster.
- Ensure it is installed.
+ [[https://kubernetes.io/docs/getting-started-guides/minikube/][Minikube]] is used to provide the local Kubernetes cluster.  Ensure it is 
+ installed.
 
 #+NAME: macos_ensure_minikube_install
 #+BEGIN_SRC sh :tangle bootstrap_kubes_macos.sh
