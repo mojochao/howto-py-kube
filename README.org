@@ -31,7 +31,7 @@
  installed.
 
 #+NAME: macos_ensure_docker_install
-#+BEGIN_SRC sh :tangle bootstrap_kubes_macos.sh
+#+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
 command -v docker >/dev/null 2>&1 || brew cask install docker
 #+END_SRC
 
@@ -41,7 +41,7 @@ command -v docker >/dev/null 2>&1 || brew cask install docker
  Check the docker version with the following command.
 
 #+NAME: macos_check_docker_version
-#+BEGIN_SRC sh :tangle bootstrap_kubes_macos.sh
+#+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
 docker version
 #+END_SRC
 
@@ -52,14 +52,14 @@ docker version
  level.  Ensure it is installed.
 
 #+NAME: macos_install_kubectl
-#+BEGIN_SRC sh :tangle bootstrap_kubes_macos.sh
+#+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
 command -v kubectl >/dev/null 2>&1 || brew install kubectl
 #+END_SRC
 
  Check the kubectl version with the following command.
 
 #+NAME: macos_check_kubectl_version
-#+BEGIN_SRC sh :tangle bootstrap_kubes_macos.sh
+#+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
 kubectl version
 #+END_SRC
 
@@ -67,14 +67,14 @@ kubectl version
  high level.  Ensure it is installed.
 
 #+NAME: macos_ensure_helm_install
-#+BEGIN_SRC sh :tangle bootstrap_kubes_macos.sh
+#+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
 command -v kubernetes-helm >/dev/null 2>&1 || brew install kubernetes-helm
 #+END_SRC
 
  Check the helm version with the following command.
 
 #+NAME: macos_check_kubectl_version
-#+BEGIN_SRC sh :tangle bootstrap_kubes_macos.sh
+#+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
 helm version
 #+END_SRC
 
@@ -82,14 +82,14 @@ helm version
  installed.
 
 #+NAME: macos_ensure_minikube_install
-#+BEGIN_SRC sh :tangle bootstrap_kubes_macos.sh
+#+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
 command -v minikube >/dev/null 2>&1 || brew cask install minikube
 #+END_SRC
 
  You should check the command and its version to verify installation.
 
 #+NAME: macos_check_minikube_version
-#+BEGIN_SRC sh :tangle bootstrap_kubes_macos.sh
+#+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
 minikube version
 #+END_SRC
 
@@ -97,7 +97,7 @@ minikube version
  recommended driver.  Install it next.
 
 #+NAME: macos_install_hyperkit_vm_driver
-#+BEGIN_SRC sh :tangle bootstrap_kubes_macos.sh
+#+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
 curl -LO https://storage.googleapis.com/minikube/releases/latest/docker-machine-driver-hyperkit \
 && chmod +x docker-machine-driver-hyperkit \
 && sudo mv docker-machine-driver-hyperkit /usr/local/bin/ \
@@ -138,11 +138,18 @@ minikube dashboard
 
 * Create the demo service
 
- Start by creating a simple web app.
+ Start by creating a directory for the demo web service.
+
+#+NAME: make_app_dir
+#+BEGIN_SRC sh :tangle scripts/create_app.sh 
+mkdir app
+#+END_SRC
+
+ Add our demo web service source code.
 
 #+NAME: create_app_py
-#+BEGIN_SRC sh :tangle create_app.sh 
-cat <<EOF > app.py
+#+BEGIN_SRC sh :tangle scripts/create_app.sh 
+cat <<EOF > app/app.py
 import os
 from bottle import route, run
 
@@ -160,8 +167,8 @@ EOF
  We also need a requirements file for the app.
 
 #+NAME: create_requirements_txt
-#+BEGIN_SRC sh :tangle create_app.sh
-cat <<EOF > requirements.txt
+#+BEGIN_SRC sh :tangle scripts/create_app.sh
+cat <<EOF > app/requirements.txt
 bottle
 EOF
 #+END_SRC
@@ -171,8 +178,8 @@ EOF
  The last thing we need is a Dockerfile.
 
 #+NAME: create_dockerfile
-#+BEGIN_SRC sh :tangle create_app.sh 
-cat <<EOF > Dockerfile
+#+BEGIN_SRC sh :tangle scripts/create_app.sh 
+cat <<EOF > app/Dockerfile
 FROM python:3.6-alpine
 EXPOSE 8080
 COPY app.py /app/app.py
