@@ -39,7 +39,7 @@ command -v docker >/dev/null 2>&1 || brew cask install docker
  After install, Docker.app will be running and you will see the Docker Whale 
  icon in your Menu Bar.
   
- Check the docker version with the following command.
+ Check the docker command.
 
 #+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
 docker version
@@ -55,7 +55,7 @@ docker version
 command -v kubectl >/dev/null 2>&1 || brew install kubectl
 #+END_SRC
 
- Check the kubectl version with the following command.
+ Check the kubectl command.
 
 #+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
 kubectl version
@@ -68,7 +68,7 @@ kubectl version
 command -v kubernetes-helm >/dev/null 2>&1 || brew install kubernetes-helm
 #+END_SRC
 
- Check the helm version with the following command.
+ Check the helm command.
 
 #+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
 helm version
@@ -81,7 +81,7 @@ helm version
 command -v minikube >/dev/null 2>&1 || brew cask install minikube
 #+END_SRC
 
- You should check the command and its version to verify installation.
+ Check the minikube command.
 
 #+BEGIN_SRC sh :tangle scripts/bootstrap_kubes_macos.sh
 minikube version
@@ -100,33 +100,31 @@ curl -LO https://storage.googleapis.com/minikube/releases/latest/docker-machine-
 
  If not using macOS, consult the [[https://github.com/kubernetes/minikube/blob/master/docs/drivers.md][driver plugin installation]] docs for options.
 
- Congratulations, you now have the tools installed to work with Kubernetes 
- clusters, both local and remote.
-
-* Start local kubernetes cluster
-  
  Start a minikube cluster with the hyperkit vm driver on macOS.
 
 #+BEGIN_SRC sh 
 minikube start --vm-driver=hyperkit
 #+END_SRC
 
- If not using macOS, consult
- After starting, we can query the cluster status.
+ Query the cluster status.
 
 #+BEGIN_SRC sh
 minikube status
 #+END_SRC
 
- After starting, we can also open the cluster dashboard.
+ Open the cluster dashboard.
 
 #+BEGIN_SRC sh
 minikube dashboard
 #+END_SRC
 
- Let's leave the dashboard open so we can easily observe changes to the cluster.
+ Leave the dashboard open so we can easily observe changes to the cluster.
+
+ Congratulations!  You're the owner of a new local kubernetes cluster.
 
 * Create the demo service
+
+ We now need a workload to run on the cluster.
 
  Start by creating a directory for the demo web service.
 
@@ -134,7 +132,7 @@ minikube dashboard
 mkdir app
 #+END_SRC
 
- Add our demo web service source code.
+ Add the demo web service source code.
 
 #+BEGIN_SRC sh :tangle scripts/create_app.sh 
 cat <<EOF > app/app.py
