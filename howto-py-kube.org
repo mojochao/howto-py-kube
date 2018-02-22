@@ -8,17 +8,18 @@
 
 * Overview
   
- This document is a guide to running [[https://www.python.org/][Python]] apps in a [[https://kubernetes.io/][Kubernetes]] environment.
+ This document is a guide to running [[https://www.python.org/][Python]] apps packaged as [[https://www.docker.com/what-docker][Docker]] images in a
+ [[https://kubernetes.io/][Kubernetes]] environment with deployments described by Kubernetes [[https://github.com/kubernetes/charts][Charts]] managed
+ by [[https://github.com/kubernetes/helm][Helm]].  That's a lot of stack to cover.
 
  This guide is intended to demo:
- - creating a local kubernetes cluster to deploy to
- - creating a demo web service to deploy to cluster
- - building the demo web service image
- - deploying the demo web service to cluster
- - scaling the deployment of the demo web service
- - updating the deployment of the demo web service
- - creating delarative deployment specifications for demo web service
- - managing deployments of the demo web service
+ - installing of all Docker and Kubernetes tools required
+ - creating demo web service source
+ - building and running demo web service image in docker engine
+ - building, running, and scaling demo web service app in minikube cluster
+ - updating demo web service source and rolling out to minikube cluster
+ - describing demo web service app delaratively with kubernetes chars
+ - running demo web service app chart deployments with helm
 
  Note that this guide demos commands on macOS, but is still valid for other 
  operating systems, apart from the macOS tools installation instructions.
@@ -30,7 +31,6 @@
 
  The first thing to do is clone this repository.
 
-#+NAME: clone_repo
 #+BEGIN_SRC sh
 mkdir -p tmp && cd tmp
 git clone https://github.com/mojochao/howto-py-kube.git
@@ -39,7 +39,6 @@ git clone https://github.com/mojochao/howto-py-kube.git
  Next remove the cloned git repository and initialize a new one so we can
  capture the state of the system we're building at various points in time.
 
-#+NAME: init_repo
 #+BEGIN_SRC sh :tangle scripts/init_demo_repo.sh
 rm -rf .git
 git init
@@ -61,12 +60,11 @@ git tag -a new-repo
  source block to execute the source.
 
  For those not down with [[http://www.howardism.org/Technical/Emacs/tao-of-emacs.html][The Tao of Emacs]] you will have to manually enter the 
- demonstrated commands.
+ demonstrated commands in a shell session.
 
  [[https://orgmode.org][Org mode]] also provides the ability to extract document source blocks into 
  scripts.
 
-#+NAME: export_scripts
 #+BEGIN_SRC elisp :results output
 (make-directory "scripts" t)
 (org-babel-tangle-file "howto-py-kube.org")
@@ -79,14 +77,12 @@ git tag -a new-repo
 
  The most commonly used is HTML.
 
-#+NAME: export_html
 #+BEGIN_SRC elisp
 (org-html-export-to-html "howto-py-kube.org")
 #+END_SRC
 
  Another commonly used format is PDF.
 
-#+NAME: export_pdf
 #+BEGIN_SRC elisp
 (org-latex-export-to-pdf "howto-py-kube.org")
 #+END_SRC
