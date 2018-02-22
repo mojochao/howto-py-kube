@@ -378,8 +378,6 @@ curl -s $(minikube service greet-http --url)
 
  It's alive!  
 
-* Deploy the demo service
-
 * Scale the demo service
 
 * Update the demo service
