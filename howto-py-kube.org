@@ -376,8 +376,6 @@ minikube service greet-http --url
 seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)
 #+END_SRC
 
- It's alive!
-
  Time to scale this service.
 
 #+BEGIN_SRC sh
