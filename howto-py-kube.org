@@ -260,7 +260,7 @@ docker ps
  Finally, let's test the service at the exposed port.
 
 #+BEGIN_SRC sh
-curl -s localhost:8080
+seq 1 10 | xargs -I{} curl -s localhost:8080
 #+END_SRC
 
  It's alive!  
@@ -373,12 +373,24 @@ minikube service greet-http --url
  Finally, let's test the service at the exposed port.
 
 #+BEGIN_SRC sh
-curl -s $(minikube service greet-http --url)
+seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)
 #+END_SRC
 
- It's alive!  
+ It's alive!
 
-* Scale the demo service
+ Time to scale this service.
+
+#+BEGIN_SRC sh
+kubectl scale rc greet --replicas=5
+#+END_SRC
+
+ And now we're scaled to five replicas.  Don't believe me?
+
+#+BEGIN_SRC sh
+seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)
+#+END_SRC
+
+ Check your dashboard for further confirmation.
 
 * Update the demo service
 
