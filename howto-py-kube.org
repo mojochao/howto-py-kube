@@ -196,11 +196,14 @@ import os
 from bottle import route, run
 
 @route('/')
-def hello():
+def greet():
     return 'Hello World from {host}'.format(host=os.uname()[1])
 
 if __name__ == '__main__':
-    run(host='0.0.0.0', port=8080, debug=True)
+    host = '0.0.0.0'
+    port = 8080
+    print('starting greet service on {}:{}'.format(host, port))
+    run(host=host, port=port, debug=True)
 EOF
 #+END_SRC
 
@@ -227,8 +230,154 @@ EOF
 
  Done!  That's all we need to provide the demo web service.
 
-* Build the demo service
+* Build and run the demo service in docker
   
+ Now that we have an app ready to build, let's do that.  Time to give it a name.
+ Let's call this app =greet-api=.
+
+#+BEGIN_SRC sh
+docker build -t greet-api app
+#+END_SRC
+
+ It will now be present in the images.
+
+#+BEGIN_SRC sh
+docker images
+#+END_SRC
+
+ Let's run the image in a docker container.
+
+#+BEGIN_SRC sh
+docker run --name greet-container --rm -d -p 8080:8080 greet-api
+#+END_SRC
+
+ It will now be present in the list of running containers.
+
+#+BEGIN_SRC sh
+docker ps
+#+END_SRC
+
+ Finally, let's test the service at the exposed port.
+
+#+BEGIN_SRC sh
+curl -s localhost:8080
+#+END_SRC
+
+ It's alive!  
+
+ We can run a shell inside the container to poke around.
+
+#+BEGIN_SRC sh
+docker exec -it greet-container bash
+#+END_SRC
+
+ Now that we've seen it works, kill it.
+
+#+BEGIN_SRC sh
+docker kill $(docker ps -aqf "name=greet-container")
+#+END_SRC
+
+ It will no longer be present in the list of running containers.
+
+#+BEGIN_SRC sh
+docker ps
+#+END_SRC
+
+ Remove the build image as well.
+
+#+BEGIN_SRC sh
+docker rmi greet-api
+#+END_SRC
+
+ It will no longer be present in the images.
+
+#+BEGIN_SRC sh
+docker images
+#+END_SRC
+
+ Now you've seen the full lifecycle of a docker image and container.
+
+* Build and run the demo service in minikube
+ 
+ Building for minikube means setting the docker engine to the one running inside
+ the cluster.
+
+ When you wish docker to use the minikube docker env, you can do this in a shell
+ session.
+
+#+BEGIN_SRC sh
+eval $(minikube docker-env)
+#+END_SRC
+
+ When you no longer wish docker to use the minikube docker env, you can do 
+ the same passing the =-u= option for uninstall.
+
+#+BEGIN_SRC sh
+eval $(minikube docker-env -u)
+#+END_SRC
+
+ Note that all =docker= commands below will demonstrate setting the minikube
+ docker environment, as each source block is effectively a different shell
+ session.  In practice, you would probably only do it at the beginning of your
+ shell session.
+
+ Now that we know how to configure docker to use minikube, we can buld our app
+ image for the cluster.  This time let's build it with the =v1= tag.
+
+#+BEGIN_SRC sh
+eval $(minikube docker-env) && docker build -t greet-api:v1 app
+#+END_SRC
+
+ Let's run the image in the cluster.
+ 
+#+BEGIN_SRC sh
+kubectl run greet --image=greet-api:v1 --port=8080 --generator=run/v1
+#+END_SRC
+
+ The =--image= argument specifies the container image we want to run, and the
+ =--port= option tells Kubernetes that our app is listening on port 8080.
+
+ The =--generator= option is something that we will not typically use, as we
+ will typically provide specs describing the Kubernetes resources we are using.
+ This is just a shortcut for getting a workload running quickly.
+
+ If you now look at your dashboard you will see a [[https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/][replication controller]] and a
+ [[https://kubernetes.io/docs/concepts/workloads/pods/pod/][pod]] resource created.
+
+ The created pod is not directly accessible to the outside world.  To enable 
+ that we need to expose it as a load balanced service.
+
+#+BEGIN_SRC sh
+kubectl expose rc greet --type=LoadBalancer --name greet-http
+#+END_SRC 
+
+ If you look again at your dashboard you will see a [[https://kubernetes.io/docs/concepts/services-networking/service/][service]] resource created.
+
+ Now we should be able to access it once we get its external IP address.
+
+#+BEGIN_SRC sh
+kubectl get svc 
+#+END_SRC
+
+ In a non-minikube cluster, the external IP address of the =greet-http= service
+ would be displayed once established.  Notice that it says =<pending>=.  
+
+ Since minikube is a single host, it doesn’t support LoadBalancer services, so
+ the service will never get an external IP.  We can still access the service 
+ through its external port, but we need to ask minikube for it.
+
+#+BEGIN_SRC sh
+minikube service greet-http --url
+#+END_SRC
+
+ Finally, let's test the service at the exposed port.
+
+#+BEGIN_SRC sh
+curl -s $(minikube service greet-http --url)
+#+END_SRC
+
+ It's alive!  
+
 * Deploy the demo service
 
 * Scale the demo service
