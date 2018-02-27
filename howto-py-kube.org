@@ -180,10 +180,12 @@ cat <<EOF > app/greet_api.py
 import os
 from bottle import route, run
 
+
 @route('/')
 def greet():
     host = os.uname()[1]
     return f'Hello World from {host}\n'
+
 
 if __name__ == '__main__':
     host = '0.0.0.0'
@@ -241,7 +243,7 @@ FROM python:3.6-alpine
 EXPOSE 8080
 COPY . /app
 WORKDIR /app
-RUN pip install .
+RUN pip install --no-cache-dir .
 ENTRYPOINT ["python", "greet_api.py"]
 EOF
 #+END_SRC
@@ -444,11 +446,13 @@ cat <<EOF > app/greet_api.py
 import os
 from bottle import request, route, run
 
+
 @route('/')
 def greet():
     host = os.uname()[1]
-    name = request.query.name
+    name = request.query.name or 'World'
     return f'Hello {name} from {host}\n'
+
 
 if __name__ == '__main__':
     host = '0.0.0.0'
