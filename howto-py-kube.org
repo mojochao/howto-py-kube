@@ -187,7 +187,7 @@ def greet():
 if __name__ == '__main__':
     host = '0.0.0.0'
     port = 8080
-    print('starting api service on {}:{}'.format(host, port))
+    print(f'starting api service on {host}:{port}')
     run(host=host, port=port, debug=True)
 EOF
 #+END_SRC
@@ -208,7 +208,7 @@ FROM python:3.6-alpine
 EXPOSE 8080
 COPY . /app
 WORKDIR /app
-RUN pip install -r requirements.txt
+RUN pip install .
 ENTRYPOINT ["python", "app.py"]
 EOF
 #+END_SRC
@@ -387,10 +387,10 @@ seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)
  Time to scale this service.
 
 #+BEGIN_SRC sh :results verbatim raw
-kubectl scale rc greet --replicas=5
+kubectl scale rc greet --replicas=2
 #+END_SRC
 
- And now we're scaled to five replicas.  Don't believe me?
+ And now we're scaled to two replicas.  Don't believe me?
 
 #+BEGIN_SRC sh :results verbatim raw
 seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)
@@ -402,7 +402,7 @@ seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)
   
   Update the demo web service source code.
 
-#+BEGIN_SRC sh :tangle scripts/update_app.sh 
+#+BEGIN_SRC sh :tangle scripts/update_app.sh :results verbatim raw
 cat <<EOF > app/app.py
 import os
 from bottle import request, route, run
@@ -411,56 +411,64 @@ from bottle import request, route, run
 def greet():
     host = os.uname()[1]
     name = request.query.name
-    return 'Hello {name} from {host}\n'
+    return f'Hello {name} from {host}\n'
 
 if __name__ == '__main__':
     host = '0.0.0.0'
     port = 8080
-    print('starting api service on {}:{}'.format(host, port))
+    print(f'starting api service on {host}:{port}')
     run(host=host, port=port, debug=True)
 EOF
 #+END_SRC
+
+#+RESULTS:
 
   Now we can pass a query param to indicate the name of the entity to greet.
 
   Let's commit it to our local repo so we address it by version name.
 
-#+BEGIN_SRC sh
-git add app/app.py
+#+BEGIN_SRC sh :tangle scripts/update_app.sh :results verbatim raw
+cd app
+git add app.py
 git ci -m 'Add name query param to greet endpoint'
-git tag -m 'v2'
+git tag v2
 #+END_SRC
 
   Let's build the app image again and call this image =greet-api:v2=.
 
-#+BEGIN_SRC sh
-eval $(minikube docker-env) && docker build -t greet-api:v2 app
+#+BEGIN_SRC sh :results verbatim raw
+eval $(minikube docker-env) && docker build -t demo/greet-api:v2 app
 #+END_SRC
 
   It will now be present in the images.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 eval $(minikube docker-env) && docker images
 #+END_SRC
 
   We now need to update the deployment of the pods running our application.
   
-  Grab the existing configuration first.
-
-#+BEGIN_SRC sh 
-kubectl get pod 
-
+#+BEGIN_SRC sh :results verbatim raw
+kubectl rolling-update greet --image=demo/greet-api:v2 
 #+END_SRC
 
-* Describe demo service deployments
+  After a bit, we will see the new pods deployed.  Let's retest the service at
+  the exposed port, passing along a query parameter.
 
+#+BEGIN_SRC sh :results verbatim raw
+seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)/\?name=kubenaut
+#+END_SRC
+
+  That was easy!
+
+* Describe demo service deployments
 * Manage demo service deployments
 * Clean up
  
  We should clean up after ourselves.
 
 #+NAME: clean_repo
-#+BEGIN_SRC sh :tangle scripts/clean_repo.sh
+#+BEGIN_SRC sh :tangle scripts/clean_repo.sh :results verbatim raw
 rm -rf app scripts
 rm -f *.html *.pdf *.tex
 #+END_SRC
