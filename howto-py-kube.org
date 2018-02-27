@@ -36,18 +36,6 @@ mkdir -p tmp && cd tmp
 git clone https://github.com/mojochao/howto-py-kube.git
 #+END_SRC
 
- Next remove the cloned git repository and initialize a new one so we can
- capture the state of the system we're building at various points in time.
-
-#+BEGIN_SRC sh :tangle scripts/init_demo_repo.sh
-rm -rf .git
-git init
-head -n 5 .gitignore > .gitignore  # don't ignore app directory
-git add .gitignore
-git commit -m 'Initial commit'
-git tag -a new-repo 
-#+END_SRC
-
  Open this document in your editor of choice.  Mine is [[http://spacemacs.org/][spacemacs]], a community
  curated configuration of the [[https://www.gnu.org/software/emacs/][Emacs]] editor, with the [[http://spacemacs.org/layers/+emacs/org/README.html][Org layer]] added to my
  [[https://github.com/mojochao/dotfiles/blob/master/src/.spacemacs][.spacemacs]] config file. 
@@ -176,15 +164,15 @@ minikube dashboard
 
 * Create the demo service
 
- We now need a workload to run on the cluster.
+  We now need a workload to run on the cluster.
 
- Start by creating a directory for the demo web service.
+  Start by creating a directory for the demo web service.
 
 #+BEGIN_SRC sh :tangle scripts/create_app.sh 
 mkdir app
 #+END_SRC
 
- Add the demo web service source code.
+  Add the demo web service source code.
 
 #+BEGIN_SRC sh :tangle scripts/create_app.sh 
 cat <<EOF > app/app.py
@@ -193,17 +181,18 @@ from bottle import route, run
 
 @route('/')
 def greet():
-    return 'Hello World from {host}\n'.format(host=os.uname()[1])
+    host = os.uname()[1]
+    return f'Hello World from {host}\n'
 
 if __name__ == '__main__':
     host = '0.0.0.0'
     port = 8080
-    print('starting greet service on {}:{}'.format(host, port))
+    print('starting api service on {}:{}'.format(host, port))
     run(host=host, port=port, debug=True)
 EOF
 #+END_SRC
 
- We also need a requirements file for the app.
+  We also need a requirements file for the app.
 
 #+BEGIN_SRC sh :tangle scripts/create_app.sh
 cat <<EOF > app/requirements.txt
@@ -211,7 +200,7 @@ bottle
 EOF
 #+END_SRC
 
- The last thing we need is a Dockerfile.
+  The last thing we need is a Dockerfile.
 
 #+BEGIN_SRC sh :tangle scripts/create_app.sh 
 cat <<EOF > app/Dockerfile
@@ -224,38 +213,49 @@ ENTRYPOINT ["python", "app.py"]
 EOF
 #+END_SRC
 
- Done!  That's all we need to provide the demo web service.
+  Done!  That's all we need to provide the demo web service.
+
+  Check the project artifacts into git and create a tag for version one of the
+  app.
+
+#+BEGIN_SRC sh :results verbatim raw
+cd app
+git init
+git add app.py requirements.txt Dockerfile
+git commit -m 'Add initial app'
+git tag v1
+#+END_SRC
 
 * Build and run the demo service in docker
-  
- Now that we have an app ready to build, let's do that.  Time to give it a name.
- Let's call this app =greet-api=.
 
-#+BEGIN_SRC sh
-docker build -t greet-api app
+ Now that we have an app ready to build, let's do that.  Time to give it a name.
+ Let's call this app =demo/greet-api= and the image name =demo/greet-api:v1=.
+
+#+BEGIN_SRC sh :results verbatim raw
+docker build -t demo/greet-api:v1 app
 #+END_SRC
 
  It will now be present in the images.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 docker images
 #+END_SRC
 
  Let's run the image in a docker container.
 
-#+BEGIN_SRC sh
-docker run --name greet-container --rm -d -p 8080:8080 greet-api
+#+BEGIN_SRC sh :results verbatim raw
+docker run --name greet-container --rm -d -p 8080:8080 demo/greet-api:v1
 #+END_SRC
 
  It will now be present in the list of running containers.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 docker ps
 #+END_SRC
 
  Finally, let's test the service at the exposed port.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 seq 1 10 | xargs -I{} curl -s localhost:8080
 #+END_SRC
 
@@ -269,25 +269,25 @@ docker exec -it greet-container bash
 
  Now that we've seen it works, kill it.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 docker kill $(docker ps -aqf "name=greet-container")
 #+END_SRC
 
  It will no longer be present in the list of running containers.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 docker ps
 #+END_SRC
 
  Remove the build image as well.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 docker rmi greet-api
 #+END_SRC
-
+ 
  It will no longer be present in the images.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 docker images
 #+END_SRC
 
@@ -301,14 +301,14 @@ docker images
  When you wish docker to use the minikube docker env, you can do this in a shell
  session.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 eval $(minikube docker-env)
 #+END_SRC
 
  When you no longer wish docker to use the minikube docker env, you can do 
  the same passing the =-u= option for uninstall.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 eval $(minikube docker-env -u)
 #+END_SRC
 
@@ -317,17 +317,29 @@ eval $(minikube docker-env -u)
  session.  In practice, you would probably only do it at the beginning of your
  shell session.
 
+ Let's use this knowledge to list the docker images in our cluster.
+
+#+BEGIN_SRC sh :results verbatim raw
+eval $(minikube docker-env) && docker images
+#+END_SRC
+
  Now that we know how to configure docker to use minikube, we can buld our app
  image for the cluster.  This time let's build it with the =v1= tag.
 
-#+BEGIN_SRC sh
-eval $(minikube docker-env) && docker build -t greet-api:v1 app
+#+BEGIN_SRC sh :results verbatim raw
+eval $(minikube docker-env) && docker build -t demo/greet-api:v1 app
+#+END_SRC
+
+ It should now show up in the docker images list for the cluster.
+
+#+BEGIN_SRC sh :results verbatim raw
+eval $(minikube docker-env) && docker images
 #+END_SRC
 
  Let's run the image in the cluster.
  
-#+BEGIN_SRC sh
-kubectl run greet --image=greet-api:v1 --port=8080 --generator=run/v1
+#+BEGIN_SRC sh :results verbatim raw
+kubectl run greet --image=demo/greet-api:v1 --port=8080 --generator=run/v1
 #+END_SRC
 
  The =--image= argument specifies the container image we want to run, and the
@@ -343,7 +355,7 @@ kubectl run greet --image=greet-api:v1 --port=8080 --generator=run/v1
  The created pod is not directly accessible to the outside world.  To enable 
  that we need to expose it as a load balanced service.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 kubectl expose rc greet --type=LoadBalancer --name greet-http
 #+END_SRC 
 
@@ -351,7 +363,7 @@ kubectl expose rc greet --type=LoadBalancer --name greet-http
 
  Now we should be able to access it once we get its external IP address.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 kubectl get svc 
 #+END_SRC
 
@@ -362,31 +374,83 @@ kubectl get svc
  the service will never get an external IP.  We can still access the service 
  through its external port, but we need to ask minikube for it.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 minikube service greet-http --url
 #+END_SRC
 
  Finally, let's test the service at the exposed port.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)
 #+END_SRC
 
  Time to scale this service.
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 kubectl scale rc greet --replicas=5
 #+END_SRC
 
  And now we're scaled to five replicas.  Don't believe me?
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results verbatim raw
 seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)
 #+END_SRC
 
  Check your dashboard for further confirmation.
 
 * Update the demo service
+  
+  Update the demo web service source code.
+
+#+BEGIN_SRC sh :tangle scripts/update_app.sh 
+cat <<EOF > app/app.py
+import os
+from bottle import request, route, run
+
+@route('/')
+def greet():
+    host = os.uname()[1]
+    name = request.query.name
+    return 'Hello {name} from {host}\n'
+
+if __name__ == '__main__':
+    host = '0.0.0.0'
+    port = 8080
+    print('starting api service on {}:{}'.format(host, port))
+    run(host=host, port=port, debug=True)
+EOF
+#+END_SRC
+
+  Now we can pass a query param to indicate the name of the entity to greet.
+
+  Let's commit it to our local repo so we address it by version name.
+
+#+BEGIN_SRC sh
+git add app/app.py
+git ci -m 'Add name query param to greet endpoint'
+git tag -m 'v2'
+#+END_SRC
+
+  Let's build the app image again and call this image =greet-api:v2=.
+
+#+BEGIN_SRC sh
+eval $(minikube docker-env) && docker build -t greet-api:v2 app
+#+END_SRC
+
+  It will now be present in the images.
+
+#+BEGIN_SRC sh
+eval $(minikube docker-env) && docker images
+#+END_SRC
+
+  We now need to update the deployment of the pods running our application.
+  
+  Grab the existing configuration first.
+
+#+BEGIN_SRC sh 
+kubectl get pod 
+
+#+END_SRC
 
 * Describe demo service deployments
 
