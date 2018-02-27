@@ -164,18 +164,19 @@ minikube dashboard
 
 * Create the demo service
 
-  We now need a workload to run on the cluster.
+  We now need a workload to run on the cluster, so we are going to create a
+  simple demo web service to run.
 
   Start by creating a directory for the demo web service.
 
-#+BEGIN_SRC sh :tangle scripts/create_app.sh 
+#+BEGIN_SRC sh :tangle scripts/create_app.sh :results none
 mkdir app
 #+END_SRC
 
-  Add the demo web service source code.
+  Add the app source code.
 
-#+BEGIN_SRC sh :tangle scripts/create_app.sh 
-cat <<EOF > app/app.py
+#+BEGIN_SRC sh :tangle scripts/create_app.sh :results none
+cat <<EOF > app/greet_api.py
 import os
 from bottle import route, run
 
@@ -192,38 +193,74 @@ if __name__ == '__main__':
 EOF
 #+END_SRC
 
-  We also need a requirements file for the app.
+  Add a =requirements.txt= file for the app.
 
-#+BEGIN_SRC sh :tangle scripts/create_app.sh
+#+BEGIN_SRC sh :tangle scripts/create_app.sh :results none
 cat <<EOF > app/requirements.txt
 bottle
 EOF
 #+END_SRC
 
-  The last thing we need is a Dockerfile.
+  Add a =setup.py= file for the app.
 
-#+BEGIN_SRC sh :tangle scripts/create_app.sh 
+#+BEGIN_SRC sh :tangle scripts/create_app.sh :results none
+cat <<EOF > app/setup.py
+from setuptools import setup
+
+with open('requirements.txt') as infile:
+    requirements = [line.strip() for line in infile.readlines()]
+
+setup(
+    name='greet-api',
+    version='1.0.0',
+    description='a demo greeting web api service',
+    url='https://some.dot.com/path',
+    author='Demo Dan',
+    author_email='demo.dan@dantheman.com',
+    py_modules=['app'],
+    install_requires=requirements,
+)
+EOF
+#+END_SRC
+
+  Add a =README.rst= file for the app.  The setuptools package warns if a 
+  README is not present.
+
+#+BEGIN_SRC sh :tangle scripts/create_app.sh :results none
+cat <<EOF > app/README.rst
+Greeting API Service
+====================
+EOF
+#+END_SRC
+
+  Add a Dockerfile for the app.
+
+#+BEGIN_SRC sh :tangle scripts/create_app.sh :results none
 cat <<EOF > app/Dockerfile
 FROM python:3.6-alpine
 EXPOSE 8080
 COPY . /app
 WORKDIR /app
 RUN pip install .
-ENTRYPOINT ["python", "app.py"]
+ENTRYPOINT ["python", "greet_api.py"]
 EOF
 #+END_SRC
 
   Done!  That's all we need to provide the demo web service.
 
+#+BEGIN_SRC sh :tangle scripts/create_app.sh :results verbatim raw
+ls -1 app
+#+END_SRC
+
   Check the project artifacts into git and create a tag for version one of the
   app.
 
-#+BEGIN_SRC sh :results verbatim raw
+#+BEGIN_SRC sh :tange scripts/create_app.sh :results verbatim raw
 cd app
 git init
-git add app.py requirements.txt Dockerfile
+git add .
 git commit -m 'Add initial app'
-git tag v1
+git tag 1.0.0
 #+END_SRC
 
 * Build and run the demo service in docker
@@ -232,7 +269,7 @@ git tag v1
  Let's call this app =demo/greet-api= and the image name =demo/greet-api:v1=.
 
 #+BEGIN_SRC sh :results verbatim raw
-docker build -t demo/greet-api:v1 app
+docker build -t demo/greet-api:1.0.0 app
 #+END_SRC
 
  It will now be present in the images.
@@ -244,7 +281,7 @@ docker images
  Let's run the image in a docker container.
 
 #+BEGIN_SRC sh :results verbatim raw
-docker run --name greet-container --rm -d -p 8080:8080 demo/greet-api:v1
+docker run --name greet-container --rm -d -p 8080:8080 demo/greet-api:1.0.0
 #+END_SRC
 
  It will now be present in the list of running containers.
@@ -264,7 +301,7 @@ seq 1 10 | xargs -I{} curl -s localhost:8080
  We can run a shell inside the container to poke around.
 
 #+BEGIN_SRC sh
-docker exec -it greet-container bash
+docker exec -it greet-container sh
 #+END_SRC
 
  Now that we've seen it works, kill it.
@@ -281,8 +318,8 @@ docker ps
 
  Remove the build image as well.
 
-#+BEGIN_SRC sh :results verbatim raw
-docker rmi greet-api
+#+BEGIN_SRC sh :results none
+docker rmi demo/greet-api:1.0.0
 #+END_SRC
  
  It will no longer be present in the images.
@@ -327,7 +364,7 @@ eval $(minikube docker-env) && docker images
  image for the cluster.  This time let's build it with the =v1= tag.
 
 #+BEGIN_SRC sh :results verbatim raw
-eval $(minikube docker-env) && docker build -t demo/greet-api:v1 app
+eval $(minikube docker-env) && docker build -t demo/greet-api:1.0.0 app
 #+END_SRC
 
  It should now show up in the docker images list for the cluster.
@@ -339,7 +376,7 @@ eval $(minikube docker-env) && docker images
  Let's run the image in the cluster.
  
 #+BEGIN_SRC sh :results verbatim raw
-kubectl run greet --image=demo/greet-api:v1 --port=8080 --generator=run/v1
+kubectl run greet --image=demo/greet-api:1.0.0 --port=8080 --generator=run/v1
 #+END_SRC
 
  The =--image= argument specifies the container image we want to run, and the
@@ -402,8 +439,8 @@ seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)
   
   Update the demo web service source code.
 
-#+BEGIN_SRC sh :tangle scripts/update_app.sh :results verbatim raw
-cat <<EOF > app/app.py
+#+BEGIN_SRC sh :tangle scripts/update_app.sh :results none
+cat <<EOF > app/greet_api.py
 import os
 from bottle import request, route, run
 
@@ -421,23 +458,43 @@ if __name__ == '__main__':
 EOF
 #+END_SRC
 
-#+RESULTS:
-
   Now we can pass a query param to indicate the name of the entity to greet.
+
+  Update the version in the =setup.py= file for the app.
+
+#+BEGIN_SRC sh :tangle scripts/create_app.sh :results none
+cat <<EOF > app/setup.py
+from setuptools import setup
+
+with open('requirements.txt') as infile:
+    requirements = [line.strip() for line in infile.readlines()]
+
+setup(
+    name='greet-api',
+    version='1.1.0',
+    description='a demo greeting web api service',
+    url='https://some.dot.com/path',
+    author='Demo Dan',
+    author_email='demo.dan@dantheman.com',
+    py_modules=['app'],
+    install_requires=requirements,
+)
+EOF
+#+END_SRC
 
   Let's commit it to our local repo so we address it by version name.
 
 #+BEGIN_SRC sh :tangle scripts/update_app.sh :results verbatim raw
 cd app
-git add app.py
+git add .
 git ci -m 'Add name query param to greet endpoint'
-git tag v2
+git tag 1.1.0
 #+END_SRC
 
-  Let's build the app image again and call this image =greet-api:v2=.
+  Let's build the app image again and call this image =greet-api:1.1.0=.
 
 #+BEGIN_SRC sh :results verbatim raw
-eval $(minikube docker-env) && docker build -t demo/greet-api:v2 app
+eval $(minikube docker-env) && docker build -t demo/greet-api:1.1.0 app
 #+END_SRC
 
   It will now be present in the images.
@@ -449,7 +506,7 @@ eval $(minikube docker-env) && docker images
   We now need to update the deployment of the pods running our application.
   
 #+BEGIN_SRC sh :results verbatim raw
-kubectl rolling-update greet --image=demo/greet-api:v2 
+kubectl rolling-update greet --image=demo/greet-api:1.1.0 
 #+END_SRC
 
   After a bit, we will see the new pods deployed.  Let's retest the service at
