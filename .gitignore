@@ -2,6 +2,7 @@
 *.html
 *.pdf
 *.tex
+*.tgz
 auto/
 greet-api/
 scripts/
