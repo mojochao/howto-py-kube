@@ -546,22 +546,47 @@ seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)/\?name=kubena
   [[https://github.com/kubernetes/helm/blob/master/docs/charts.md][charts]].  These charts may be used by the =helm= command to manage deployment
   at a higher level.
 
-#+BEGIN_SRC sh :tangle scripts/create_chart.sh :results verbatim raw
-cd greet-api
-helm create .
-git add . 
-git commit -m 'Create initial chart with helm'
+  Helm has a =tiller-deploy= service that needs to be installed into the 
+  cluster.
+
+#+BEGIN_SRC sh :results verbatim raw
+helm init
 #+END_SRC
 
-* Manage demo service deployments
+  If you check your deployment you will see a tiller-deploy pod in the 
+  =kube=system= namespace.
+ 
+#+BEGIN_SRC sh :results verbatim raw
+cd greet-api && helm create .
+#+END_SRC
+
+  Check what was added.
+
+#+BEGIN_SRC sh :results verbatim raw
+cd greet-api && git status
+#+END_SRC
+
+  Open the =Chart.yaml= file in a text editor and set the =name= and =version=.
+
+  Open the =values.yaml= file in a text editor and set the =image= =repository= 
+  and =tag=.
+
+  You can now deploy this with =helm=.
+
+#+BEGIN_SRC sh :results verbatim raw
+helm install greet-api
+#+END_SRC
+
+  Check your dashboard and see if you can notice any differences.
+
 * Clean up
  
  We should clean up after ourselves.
 
 #+NAME: clean_repo
 #+BEGIN_SRC sh :tangle scripts/clean_repo.sh :results none
-rm -rf app scripts
-rm -f *.html *.pdf *.tex
+rm -rf greet-api scripts
+rm -f *.html *.pdf *.tex *.tgz
 #+END_SRC
 
  And with that, we're done.  I hope you learned something.  I know I did.
