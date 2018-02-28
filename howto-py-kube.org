@@ -64,13 +64,13 @@ git clone https://github.com/mojochao/howto-py-kube.git
 
  The most commonly used is HTML.
 
-#+BEGIN_SRC elisp
+#+BEGIN_SRC elisp :results none
 (org-html-export-to-html "howto-py-kube.org")
 #+END_SRC
 
  Another commonly used format is PDF.
 
-#+BEGIN_SRC elisp
+#+BEGIN_SRC elisp :results none
 (org-latex-export-to-pdf "howto-py-kube.org")
 #+END_SRC
 
