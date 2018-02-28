@@ -13,7 +13,7 @@
  by [[https://github.com/kubernetes/helm][Helm]].  That's a lot of stack to cover.
 
  This guide is intended to demo:
- - installing of all Docker and Kubernetes tools required
+ - installing all Docker and Kubernetes tools required
  - creating demo web service source
  - building and running demo web service image in docker engine
  - building, running, and scaling demo web service app in minikube cluster
