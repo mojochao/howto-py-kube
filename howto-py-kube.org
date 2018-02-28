@@ -35,9 +35,9 @@
 git clone https://github.com/mojochao/howto-py-kube.git
 #+END_SRC
 
- Open this document in your editor of choice.  Mine is [[http://spacemacs.org/][spacemacs]], a community
- curated configuration of the [[https://www.gnu.org/software/emacs/][Emacs]] editor, with the [[http://spacemacs.org/layers/+emacs/org/README.html][Org layer]] added to my
- [[https://github.com/mojochao/dotfiles/blob/master/src/.spacemacs][.spacemacs]] config file. 
+ Open the =howto-py-kube.org= document in your editor of choice.  Mine is 
+ [[http://spacemacs.org/][spacemacs]], a community curated configuration of the [[https://www.gnu.org/software/emacs/][Emacs]] editor, with the
+ [[http://spacemacs.org/layers/+emacs/org/README.html][Org layer]] added to my [[https://github.com/mojochao/dotfiles/blob/master/src/.spacemacs][.spacemacs]] config file. 
 
  This document is an example of [[http://howardism.org/Technical/Emacs/literate-devops.html][Literate DevOps]], a term coined by the awesome 
  emacs hacker [[http://www.howardism.org/][Howard Abrams]]. 
