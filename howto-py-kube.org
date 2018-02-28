@@ -32,7 +32,6 @@
  The first thing to do is clone this repository.
 
 #+BEGIN_SRC sh
-mkdir -p tmp && cd tmp
 git clone https://github.com/mojochao/howto-py-kube.git
 #+END_SRC
 
