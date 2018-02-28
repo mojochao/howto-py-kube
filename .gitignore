@@ -3,5 +3,5 @@
 *.pdf
 *.tex
 auto/
+greet-api/
 scripts/
-app/
