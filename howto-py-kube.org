@@ -235,7 +235,7 @@ Greeting API Service
 EOF
 #+END_SRC
 
-  Add a Dockerfile for the app.
+  Add a =Dockerfile= for the app.
 
 #+BEGIN_SRC sh :tangle scripts/create_app.sh :results none
 cat <<EOF > app/Dockerfile
@@ -248,10 +248,18 @@ ENTRYPOINT ["python", "greet_api.py"]
 EOF
 #+END_SRC
 
+  Add a =.dockerignore= file for the app.
+
+#+BEGIN_SRC sh :tangle scripts/create_app.py :results none
+cat <<EOF > app/.dockerignore
+.git
+EOF
+#+END_SRC
+
   Done!  That's all we need to provide the demo web service.
 
 #+BEGIN_SRC sh :tangle scripts/create_app.sh :results verbatim raw
-ls -1 app
+ls -a1 app
 #+END_SRC
 
   Check the project artifacts into git and create a tag for version one of the
@@ -308,7 +316,7 @@ docker exec -it greet-container sh
 
  Now that we've seen it works, kill it.
 
-#+BEGIN_SRC sh :results verbatim raw
+#+BEGIN_SRC sh :results none
 docker kill $(docker ps -aqf "name=greet-container")
 #+END_SRC
 
@@ -426,7 +434,7 @@ seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)
  Time to scale this service.
 
 #+BEGIN_SRC sh :results verbatim raw
-kubectl scale rc greet --replicas=2
+kubectl scale rc greet --replicas=3
 #+END_SRC
 
  And now we're scaled to two replicas.  Don't believe me?
@@ -522,6 +530,12 @@ seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)/\?name=kubena
 
   That was easy!
 
+* Editable docker images
+
+  It is convenient to edit your app source and have it run without rebuilding
+  the docker image.  To do this, we'll have to make some changes to our app
+  =Dockerfile=.
+
 * Describe demo service deployments
 * Manage demo service deployments
 * Clean up
@@ -529,7 +543,7 @@ seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)/\?name=kubena
  We should clean up after ourselves.
 
 #+NAME: clean_repo
-#+BEGIN_SRC sh :tangle scripts/clean_repo.sh :results verbatim raw
+#+BEGIN_SRC sh :tangle scripts/clean_repo.sh :results none
 rm -rf app scripts
 rm -f *.html *.pdf *.tex
 #+END_SRC
