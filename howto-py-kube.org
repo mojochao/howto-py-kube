@@ -18,7 +18,7 @@
  - building and running demo web service image in docker engine
  - building, running, and scaling demo web service app in minikube cluster
  - updating demo web service source and rolling out to minikube cluster
- - describing demo web service app delaratively with kubernetes chars
+ - describing demo web service app delaratively with kubernetes charts
  - running demo web service app chart deployments with helm
 
  Note that this guide demos commands on macOS, but is still valid for other 
