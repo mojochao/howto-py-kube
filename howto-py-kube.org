@@ -537,6 +537,19 @@ seq 1 10 | xargs -I{} curl -s $(minikube service greet-http --url)/\?name=kubena
   =Dockerfile=.
 
 * Describe demo service deployments
+
+  We have used the =kubectl= to manage deployment imperatively.  It is
+  recommended to specify a deployment declaratively in terms of Kubernetes
+  [[https://github.com/kubernetes/helm/blob/master/docs/charts.md][charts]].  These charts may be used by the =helm= command to manage deployment
+  at a higher level.
+
+#+BEGIN_SRC sh :tangle scripts/create_chart.sh :results verbatim raw
+cd app
+helm create chart
+git add chart
+git commit -m 'Create initial chart with helm'
+#+END_SRC
+
 * Manage demo service deployments
 * Clean up
  
